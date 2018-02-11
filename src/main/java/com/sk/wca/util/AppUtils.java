@@ -26,7 +26,7 @@ public final class AppUtils {
         final int width = 50;
         final double progress = calculateProgress(completed, total);
         if (progress - lastProgress > 0.1) {
-            System.out.print("\r[");
+            System.out.print("[");
             int i = 0;
             for (; i <= (int) (progress * width); i++) {
                 System.out.print(".");
@@ -34,7 +34,7 @@ public final class AppUtils {
             for (; i < width; i++) {
                 System.out.print(" ");
             }
-            System.out.print("]");
+            System.out.println("]");
             return progress;
         } else {
             return lastProgress;

@@ -49,28 +49,29 @@ public class JavaScriptCrawlerService implements CralwlerService {
                 if (line.contains(AppUtils.SCRIPT_TAG)) {
                     final Matcher match = p.matcher(line);
                     if (match.find()) {
-                        if (traversedUrls.containsKey(match.group(1))) {
+                        final String matchedGroup = match.group(1);
+                        if (traversedUrls.containsKey(matchedGroup)) {
                             continue;
                         }
-                        traversedUrls.put(match.group(1), 1);
-                        if (match.group(1).startsWith(AppUtils.DOUBLE_SLASH)) {
+                        traversedUrls.put(matchedGroup, 1);
+
+                        if (matchedGroup.startsWith(AppUtils.DOUBLE_SLASH)) {
                             jsLibs.add(new StringBuffer(url.getProtocol()).append(AppUtils.COLON)
-                                    .append(match.group(1)).toString());
+                                    .append(matchedGroup).toString());
                             continue;
-                        } else if (!match.group(1).startsWith(AppUtils.WWW)
-                                && !match.group(1).startsWith(AppUtils.HTTP)
-                                && !match.group(1).startsWith(AppUtils.HTTPS)) {
+                        } else if (!matchedGroup.startsWith(AppUtils.WWW) && !matchedGroup.startsWith(AppUtils.HTTP)
+                                && !matchedGroup.startsWith(AppUtils.HTTPS)) {
                             jsLibs.add(new StringBuffer(url.getProtocol()).append(AppUtils.COLON)
                                     .append(AppUtils.DOUBLE_SLASH).append(url.getHost()).append(AppUtils.SLASH)
-                                    .append(match.group(1)).toString());
+                                    .append(matchedGroup).toString());
                         } else {
-                            jsLibs.add(match.group(1));
+                            jsLibs.add(matchedGroup);
                         }
                     }
                 }
             }
         } catch (final Exception e) {
-            // System.err.println(e.getMessage() + " - " + urlString);
+            System.err.println(e.getMessage() + " - " + urlString);
         } finally {
             if (null != connection) {
                 connection.disconnect();
@@ -140,7 +141,7 @@ public class JavaScriptCrawlerService implements CralwlerService {
             final byte[] checksum = md.digest();
             data = DatatypeConverter.printHexBinary(checksum);
         } catch (final NoSuchAlgorithmException e) {
-            // System.err.println(e.getMessage() + " - " + content.toString());
+            System.err.println(e.getMessage() + " - " + content.toString());
         }
         return data;
     }
