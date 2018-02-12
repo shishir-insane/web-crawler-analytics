@@ -1,3 +1,9 @@
+/*
+ * WebCrawlerAnalytics.java
+ * com.sk.wca.start
+ * web-crawler-analytics
+ * Copyright 2018 - Shishir Kumar
+ */
 package com.sk.wca.start;
 
 import java.io.IOException;
@@ -18,6 +24,12 @@ import com.sk.wca.util.AppUtils;
 public class WebCrawlerAnalytics {
     private static final int TOP_X_NUMBER = 5;
 
+    /**
+     * The main method.
+     *
+     * @param args
+     *            the arguments
+     */
     public static void main(final String[] args) {
         final Scanner scanner = new Scanner(System.in);
         System.out.print("Enter the search term: ");
@@ -51,6 +63,17 @@ public class WebCrawlerAnalytics {
         }
     }
 
+    /**
+     * Gets the analytics results.
+     *
+     * @param query
+     *            the query
+     * @param noOfResults
+     *            the no of results
+     * @return the analytics results
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     */
     public List<Map.Entry<String, Integer>> getAnalyticsResults(final String query, final int noOfResults)
             throws IOException {
         final List<Map.Entry<String, Integer>> finalResults = new ArrayList<>();
@@ -82,6 +105,5 @@ public class WebCrawlerAnalytics {
         Collections.sort(finalResults, (o1, o2) -> o2.getValue() - o1.getValue());
         return finalResults;
     }
-
 
 }

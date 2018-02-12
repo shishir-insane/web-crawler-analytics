@@ -1,3 +1,9 @@
+/*
+ * AppUtils.java
+ * com.sk.wca.util
+ * web-crawler-analytics
+ * Copyright 2018 - Shishir Kumar
+ */
 package com.sk.wca.util;
 
 public final class AppUtils {
@@ -22,6 +28,17 @@ public final class AppUtils {
     public static final String SHA_256 = "SHA-256";
     public static final String HTTP_GET = "GET";
 
+    /**
+     * Update progress.
+     *
+     * @param completed
+     *            the completed
+     * @param total
+     *            the total
+     * @param lastProgress
+     *            the last progress
+     * @return the double
+     */
     public static double updateProgress(final int completed, final int total, final double lastProgress) {
         final int width = 50;
         final double progress = calculateProgress(completed, total);
@@ -42,10 +59,22 @@ public final class AppUtils {
 
     }
 
+    /**
+     * Calculate progress.
+     *
+     * @param completed
+     *            the completed
+     * @param total
+     *            the total
+     * @return the double
+     */
     public static double calculateProgress(final int completed, final int total) {
         return (double) completed / total;
     }
 
+    /**
+     * Instantiates a new app utils.
+     */
     private AppUtils() {
         // Hidden constructor
     }

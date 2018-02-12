@@ -1,3 +1,9 @@
+/*
+ * GoogleSearchService.java
+ * com.sk.wca.search.impl
+ * web-crawler-analytics
+ * Copyright 2018 - Shishir Kumar
+ */
 package com.sk.wca.search.impl;
 
 import java.io.IOException;
@@ -16,6 +22,9 @@ public class GoogleSearchService implements SearchService {
 
     private static final GoogleSearchService INSTANCE = new GoogleSearchService();
 
+    /**
+     * Instantiates a new google search service.
+     */
     private GoogleSearchService() {
         // Hidden constructor
     }
@@ -23,15 +32,32 @@ public class GoogleSearchService implements SearchService {
     public enum GoogleSearchServiceFactory {
         INSTANCE;
 
+        /**
+         * Gets the single instance of GoogleSearchServiceFactory.
+         *
+         * @return single instance of GoogleSearchServiceFactory
+         */
         public SearchService getInstance() {
             return new GoogleSearchService();
         }
     }
 
+    /**
+     * Gets the single instance of GoogleSearchService.
+     *
+     * @return single instance of GoogleSearchService
+     */
     public final static synchronized SearchService getInstance() {
         return INSTANCE;
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * com.sk.wca.search.SearchService#getResultURLsForSearchQuery(java.lang.
+     * String, int)
+     */
     @Override
     public final List<String> getResultURLsForSearchQuery(final String searchQuery, final int noOfResults) {
         List<String> resultUrls = null;
@@ -44,8 +70,7 @@ public class GoogleSearchService implements SearchService {
                 for (final Element result : results) {
                     final String linkHref = result.attr(AppUtils.HREF_ATTR);
                     if (!linkHref.isEmpty() && !linkHref.startsWith("/search")) {
-                        resultUrls.add(linkHref.replaceAll(AppUtils.GOOGLE_RESULT_URL_REPLACE_STR,
-                                AppUtils.EMPTY_STR));
+                        resultUrls.add(linkHref.replaceAll(AppUtils.GOOGLE_RESULT_URL_REPLACE_STR, AppUtils.EMPTY_STR));
                     }
                 }
             }
@@ -55,6 +80,15 @@ public class GoogleSearchService implements SearchService {
         return resultUrls;
     }
 
+    /**
+     * Generate search url.
+     *
+     * @param searchQuery
+     *            the search query
+     * @param noOfResults
+     *            the no of results
+     * @return the string
+     */
     private String generateSearchUrl(final String searchQuery, final int noOfResults) {
         return new StringBuffer(AppUtils.GOOGLE_SEARCH_URL).append("?q=").append(searchQuery).append("&num=")
                 .append(noOfResults).toString();

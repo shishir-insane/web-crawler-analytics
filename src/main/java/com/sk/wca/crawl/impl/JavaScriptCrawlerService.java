@@ -1,3 +1,9 @@
+/*
+ * JavaScriptCrawlerService.java
+ * com.sk.wca.crawl.impl
+ * web-crawler-analytics
+ * Copyright 2018 - Shishir Kumar
+ */
 package com.sk.wca.crawl.impl;
 
 import java.io.BufferedReader;
@@ -26,6 +32,12 @@ public class JavaScriptCrawlerService implements CralwlerService {
 
     Pattern p = Pattern.compile(AppUtils.SCRIPT_SRC_PATTERN);
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.sk.wca.crawl.CralwlerService#getLibrariesFromURL(java.lang.String)
+     */
     @Override
     public final List<String> getLibrariesFromURL(final String urlString) {
         if (urlString.isEmpty()) {
@@ -58,8 +70,8 @@ public class JavaScriptCrawlerService implements CralwlerService {
                         traversedUrls.put(matchedGroup, 1);
 
                         if (matchedGroup.startsWith(AppUtils.DOUBLE_SLASH)) {
-                            jsLibs.add(new StringBuffer(url.getProtocol()).append(AppUtils.COLON)
-                                    .append(matchedGroup).toString());
+                            jsLibs.add(new StringBuffer(url.getProtocol()).append(AppUtils.COLON).append(matchedGroup)
+                                    .toString());
                             continue;
                         } else if (!matchedGroup.startsWith(AppUtils.WWW) && !matchedGroup.startsWith(AppUtils.HTTP)
                                 && !matchedGroup.startsWith(AppUtils.HTTPS)) {
@@ -90,6 +102,11 @@ public class JavaScriptCrawlerService implements CralwlerService {
         return jsLibs;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.sk.wca.crawl.CralwlerService#countLibraries(java.util.List)
+     */
     @Override
     public final Map<String, Map<String, Integer>> countLibraries(final List<String> javascriptLibrariesUrls) {
         final Map<String, Map<String, Integer>> entries = new HashMap<>();
@@ -126,6 +143,15 @@ public class JavaScriptCrawlerService implements CralwlerService {
         return entries;
     }
 
+    /**
+     * Read url content.
+     *
+     * @param is
+     *            the is
+     * @return the byte[]
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     */
     private final byte[] readUrlContent(final InputStream is) throws IOException {
         final byte[] chunk = new byte[4096];
         int length;
@@ -138,10 +164,24 @@ public class JavaScriptCrawlerService implements CralwlerService {
         return content;
     }
 
+    /**
+     * Gets the file name from URL path.
+     *
+     * @param path
+     *            the path
+     * @return the file name from URL path
+     */
     private final String getFileNameFromURLPath(final String path) {
         return path.substring(path.lastIndexOf(AppUtils.SLASH) + 1, path.length());
     }
 
+    /**
+     * Calculate check sum.
+     *
+     * @param content
+     *            the content
+     * @return the string
+     */
     private final String calculateCheckSum(final byte[] content) {
         String data = null;
         try {
