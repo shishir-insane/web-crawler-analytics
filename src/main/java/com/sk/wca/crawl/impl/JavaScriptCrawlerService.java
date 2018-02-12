@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -44,7 +45,7 @@ public class JavaScriptCrawlerService implements CralwlerService {
                 // by " + urlString);
                 return jsLibs;
             }
-            br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
+            br = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.contains(AppUtils.SCRIPT_TAG)) {
