@@ -13,9 +13,9 @@ public final class AppUtils {
     public static final String HTTP = "http";
     public static final String HTTPS = "https";
     public static final String WWW = "www";
-    public static final String COLON = ":";
+    public static final char COLON = ':';
     public static final String DOUBLE_SLASH = "//";
-    public static final String SLASH = "/";
+    public static final char SLASH = '/';
     public static final String REQUEST_GET = "GET";
     public static final String REQUEST_ACCEPT = "Accept";
     public static final String REQUEST_ACCPET_JAVASCRIPT = "application/javascript";
@@ -26,15 +26,15 @@ public final class AppUtils {
         final int width = 50;
         final double progress = calculateProgress(completed, total);
         if (progress - lastProgress > 0.1) {
-            System.out.print("[");
+            System.out.print('[');
             int i = 0;
             for (; i <= (int) (progress * width); i++) {
-                System.out.print(".");
+                System.out.print('.');
             }
             for (; i < width; i++) {
-                System.out.print(" ");
+                System.out.print(' ');
             }
-            System.out.println("]");
+            System.out.println(']');
             return progress;
         } else {
             return lastProgress;

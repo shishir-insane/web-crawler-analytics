@@ -34,6 +34,7 @@ public class JavaScriptCrawlerService implements CralwlerService {
         final Map<String, Integer> traversedUrls = new HashMap<>();
         URL url = null;
         HttpURLConnection connection = null;
+        BufferedReader br = null;
         try {
             url = new URL(urlString);
             connection = (HttpURLConnection) url.openConnection();
@@ -43,7 +44,7 @@ public class JavaScriptCrawlerService implements CralwlerService {
                 // by " + urlString);
                 return jsLibs;
             }
-            final BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.contains(AppUtils.SCRIPT_TAG)) {
@@ -75,6 +76,13 @@ public class JavaScriptCrawlerService implements CralwlerService {
         } finally {
             if (null != connection) {
                 connection.disconnect();
+            }
+            if (null != br) {
+                try {
+                    br.close();
+                } catch (final IOException e) {
+                    System.out.println(e.getMessage());
+                }
             }
         }
 
@@ -130,7 +138,7 @@ public class JavaScriptCrawlerService implements CralwlerService {
     }
 
     private final String getFileNameFromURLPath(final String path) {
-        return path.substring(path.lastIndexOf("/") + 1, path.length());
+        return path.substring(path.lastIndexOf(AppUtils.SLASH) + 1, path.length());
     }
 
     private final String calculateCheckSum(final byte[] content) {
@@ -141,7 +149,7 @@ public class JavaScriptCrawlerService implements CralwlerService {
             final byte[] checksum = md.digest();
             data = DatatypeConverter.printHexBinary(checksum);
         } catch (final NoSuchAlgorithmException e) {
-            System.err.println(e.getMessage() + " - " + content.toString());
+            System.err.println(e.getMessage());
         }
         return data;
     }
