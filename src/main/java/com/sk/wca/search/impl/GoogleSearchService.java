@@ -50,9 +50,9 @@ public class GoogleSearchService implements SearchService {
                 }
             }
         } catch (final IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
+            return resultUrls;
         }
-        return resultUrls;
     }
 
     private String generateSearchUrl(final String searchQuery, final int noOfResults) {
