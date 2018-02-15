@@ -20,9 +20,11 @@ import com.sk.wca.crawl.impl.JavaScriptCrawlerService;
 import com.sk.wca.search.SearchService;
 import com.sk.wca.search.impl.GoogleSearchService.GoogleSearchServiceFactory;
 import com.sk.wca.util.AppUtils;
+import com.sk.wca.util.Progress;
 
 public class WebCrawlerAnalytics {
     private static final int TOP_X_NUMBER = 5;
+    private static final int TOP_SEARCH_RESULTS = 100;
 
     /**
      * The main method.
@@ -37,26 +39,24 @@ public class WebCrawlerAnalytics {
         final WebCrawlerAnalytics webCrawlerAnalytics = new WebCrawlerAnalytics();
         int topX = TOP_X_NUMBER;
         try {
-            final List<Map.Entry<String, Integer>> results = webCrawlerAnalytics.getAnalyticsResults(query, 100);
+            final List<Map.Entry<String, Integer>> results = webCrawlerAnalytics.getAnalyticsResults(query,
+                    TOP_SEARCH_RESULTS);
             if (null != results && !results.isEmpty()) {
                 if (results.size() < topX) {
                     topX = results.size();
                 }
                 System.out.println();
-                System.out.println(
-                        "----------------------------------------------------------------------------------------------");
-                System.out.println("Top " + topX + " Javascript Libraries used:");
-                System.out.println("-----------------------------------------------------------------------------");
-                System.out.printf("%5s %15s %60s", "#", "LIBRARY", "COUNT");
+                System.out.println("------------------------------------------------------------------------------");
+                System.out.println("Top " + topX + " out of total " + results.size() + " Javascript Libraries used:");
+                System.out.println("------------------------------------------------------------------------------");
+                System.out.printf("%-5s%-60s%-16s", "#", "LIBRARY", "COUNT");
                 System.out.println();
-                System.out.println(
-                        "----------------------------------------------------------------------------------------------");
+                System.out.println("------------------------------------------------------------------------------");
                 for (int i = 0; i < topX; i++) {
-                    System.out.format("%5s %15s %60s", i + 1, results.get(i).getKey(), results.get(i).getValue());
+                    System.out.format("%-5s%-60s%-16s", i + 1, results.get(i).getKey(), results.get(i).getValue());
                     System.out.println();
                 }
-                System.out.println(
-                        "----------------------------------------------------------------------------------------------");
+                System.out.println("------------------------------------------------------------------------------");
             }
         } catch (final IOException e) {
             e.printStackTrace();
@@ -83,18 +83,19 @@ public class WebCrawlerAnalytics {
         final CralwlerService cralwlerService = new JavaScriptCrawlerService();
         final List<String> resultUrls = searchService.getResultURLsForSearchQuery(query, noOfResults);
         List<String> libUrls;
-        int i = 1;
-        double searchProgress = 0.0;
-        System.out.println("Processing search result URLs");
+        System.out.println("------------------------------------------------------------------------------");
+        System.out.println("Processing search result URLs...");
+        final Progress searchProgress = new Progress(resultUrls.size());
         for (final String url : resultUrls) {
-            searchProgress = AppUtils.updateProgress(i, resultUrls.size(), searchProgress);
-            libUrls = cralwlerService.getLibrariesFromURL(url);
+            searchProgress.setCompleted(searchProgress.getCompleted() + 1);
+            searchProgress.setProgressMade(AppUtils.updateProgress(searchProgress.getCompleted(),
+                    searchProgress.getTotal(), searchProgress.getProgressMade()));
+            libUrls = cralwlerService.getIncludedLibsFromUrl(url);
             if (null != libUrls && !libUrls.isEmpty()) {
                 allLibraryUrls.addAll(libUrls);
             }
-            i += 1;
         }
-        countLibMap = cralwlerService.countLibraries(allLibraryUrls);
+        countLibMap = cralwlerService.groupByAndCountLibraries(allLibraryUrls);
 
         for (final Entry<String, Map<String, Integer>> entry : countLibMap.entrySet()) {
             for (final Entry<String, Integer> entry2 : countLibMap.get(entry.getKey()).entrySet()) {

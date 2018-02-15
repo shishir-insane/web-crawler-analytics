@@ -13,16 +13,16 @@ import java.util.Map;
 public interface CralwlerService {
 
     /**
-     * Gets the libraries from URL.
+     * Gets the included libs from url.
      *
      * @param urlString
      *            the url string
-     * @return the libraries from URL
+     * @return the included libs from url
      */
-    List<String> getLibrariesFromURL(String urlString);
+    List<String> getIncludedLibsFromUrl(String urlString);
 
     /**
-     * Count libraries.
+     * Group by and count libraries.
      *
      * @param javascriptLibrariesUrls
      *            the javascript libraries urls
@@ -30,6 +30,6 @@ public interface CralwlerService {
      * @throws IOException
      *             Signals that an I/O exception has occurred.
      */
-    Map<String, Map<String, Integer>> countLibraries(List<String> javascriptLibrariesUrls) throws IOException;
+    Map<String, Map<String, Integer>> groupByAndCountLibraries(List<String> javascriptLibrariesUrls) throws IOException;
 
 }

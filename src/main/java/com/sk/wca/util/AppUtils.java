@@ -42,16 +42,16 @@ public final class AppUtils {
     public static double updateProgress(final int completed, final int total, final double lastProgress) {
         final int width = 50;
         final double progress = calculateProgress(completed, total);
-        if (progress - lastProgress > 0.1) {
-            System.out.print('[');
+        if (progress - lastProgress > 0.1 || progress >= 1.0) {
+            System.out.print('|');
             int i = 0;
             for (; i <= (int) (progress * width); i++) {
-                System.out.print('.');
+                System.out.print('=');
             }
             for (; i < width; i++) {
                 System.out.print(' ');
             }
-            System.out.println(']');
+            System.out.println(new StringBuffer("| ").append(completed).append("/").append(total));
             return progress;
         } else {
             return lastProgress;

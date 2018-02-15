@@ -27,19 +27,20 @@ import javax.xml.bind.DatatypeConverter;
 
 import com.sk.wca.crawl.CralwlerService;
 import com.sk.wca.util.AppUtils;
+import com.sk.wca.util.Progress;
 
 public class JavaScriptCrawlerService implements CralwlerService {
 
-    Pattern p = Pattern.compile(AppUtils.SCRIPT_SRC_PATTERN);
+    private static final Pattern PATTERN = Pattern.compile(AppUtils.SCRIPT_SRC_PATTERN);
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
-     * com.sk.wca.crawl.CralwlerService#getLibrariesFromURL(java.lang.String)
+     * com.sk.wca.crawl.CralwlerService#getIncludedLibsFromUrl(java.lang.String)
      */
     @Override
-    public final List<String> getLibrariesFromURL(final String urlString) {
+    public final List<String> getIncludedLibsFromUrl(final String urlString) {
         if (urlString.isEmpty()) {
             return null;
         }
@@ -53,15 +54,13 @@ public class JavaScriptCrawlerService implements CralwlerService {
             connection = (HttpURLConnection) url.openConnection();
             connection.setConnectTimeout(15 * 1000);
             if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                // System.err.println(connection.getResponseCode() + " returned
-                // by " + urlString);
                 return jsLibs;
             }
             br = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.contains(AppUtils.SCRIPT_TAG)) {
-                    final Matcher match = p.matcher(line);
+                    final Matcher match = PATTERN.matcher(line);
                     if (match.find()) {
                         final String matchedGroup = match.group(1);
                         if (traversedUrls.containsKey(matchedGroup)) {
@@ -83,9 +82,10 @@ public class JavaScriptCrawlerService implements CralwlerService {
                         }
                     }
                 }
+
             }
-        } catch (final Exception e) {
-            System.err.println(e.getMessage() + " - " + urlString);
+        } catch (final IOException e) {
+            return null;
         } finally {
             if (null != connection) {
                 connection.disconnect();
@@ -98,35 +98,38 @@ public class JavaScriptCrawlerService implements CralwlerService {
                 }
             }
         }
-
         return jsLibs;
     }
 
     /*
      * (non-Javadoc)
-     * 
-     * @see com.sk.wca.crawl.CralwlerService#countLibraries(java.util.List)
+     *
+     * @see
+     * com.sk.wca.crawl.CralwlerService#groupByAndCountLibraries(java.util.List)
      */
     @Override
-    public final Map<String, Map<String, Integer>> countLibraries(final List<String> javascriptLibrariesUrls) {
+    public final Map<String, Map<String, Integer>> groupByAndCountLibraries(final List<String> javascriptLibrariesUrls) {
         final Map<String, Map<String, Integer>> entries = new HashMap<>();
-        int i = 1;
-        double searchProgress = 0.0;
-        System.out.println("Processing & grouping libraries included in URLS from search results");
-        for (final String jsurl : javascriptLibrariesUrls) {
-            searchProgress = AppUtils.updateProgress(i++, javascriptLibrariesUrls.size(), searchProgress);
-            if (null != jsurl && !jsurl.isEmpty()) {
+        final Progress searchProgress = new Progress(javascriptLibrariesUrls.size());
+        System.out.println("------------------------------------------------------------------------------");
+        System.out.println("Processing & grouping libraries included in URLs from search results...");
+        javascriptLibrariesUrls.parallelStream().forEach(js -> {
+            searchProgress.setCompleted(searchProgress.getCompleted() + 1);
+            searchProgress.setProgressMade(
+                    AppUtils.updateProgress(searchProgress.getCompleted(), searchProgress.getTotal(),
+                            searchProgress.getProgressMade()));
+            if (null != js && !js.isEmpty()) {
                 try {
-                    final URL url = new URL(jsurl);
+                    final URL url = new URL(js);
                     final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setConnectTimeout(15 * 1000);
                     connection.setRequestMethod(AppUtils.REQUEST_GET);
                     connection.setRequestProperty(AppUtils.REQUEST_ACCEPT, AppUtils.REQUEST_ACCPET_JAVASCRIPT);
                     if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                        continue;
+                        return;
                     }
-                    final byte[] content = readUrlContent(connection.getInputStream());
-                    final String checksum = calculateCheckSum(content);
+                    final byte[] content = readContentFromUrlInputStream(connection.getInputStream());
+                    final String checksum = calculateCheckSumForByteArray(content);
                     if (!entries.containsKey(checksum)) {
                         final Map<String, Integer> m = new HashMap<>();
                         m.put(getFileNameFromURLPath(url.getPath()), 1);
@@ -134,11 +137,10 @@ public class JavaScriptCrawlerService implements CralwlerService {
                     }
                     connection.disconnect();
                 } catch (final Exception e) {
-                    continue;
+                    return;
                 }
-
             }
-        }
+        });
 
         return entries;
     }
@@ -152,7 +154,7 @@ public class JavaScriptCrawlerService implements CralwlerService {
      * @throws IOException
      *             Signals that an I/O exception has occurred.
      */
-    private final byte[] readUrlContent(final InputStream is) throws IOException {
+    private final byte[] readContentFromUrlInputStream(final InputStream is) throws IOException {
         final byte[] chunk = new byte[4096];
         int length;
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -182,7 +184,7 @@ public class JavaScriptCrawlerService implements CralwlerService {
      *            the content
      * @return the string
      */
-    private final String calculateCheckSum(final byte[] content) {
+    private final String calculateCheckSumForByteArray(final byte[] content) {
         String data = null;
         try {
             final MessageDigest md = MessageDigest.getInstance(AppUtils.SHA_256);
