@@ -62,8 +62,7 @@ public class GoogleSearchService implements SearchService {
     public final List<String> getResultURLsForSearchQuery(final String searchQuery, final int noOfResults) {
         List<String> resultUrls = null;
         try {
-            final Document doc = Jsoup.connect(generateSearchUrl(searchQuery, noOfResults + 1))
-                    .userAgent(AppUtils.USER_AGENT).get();
+            final Document doc = getHtmlDocumentFromUrl(generateSearchUrl(searchQuery, noOfResults));
             final Elements results = doc.select(AppUtils.GOOGLE_RESULTS_ELEMENT);
             if (null != results) {
                 resultUrls = new ArrayList<>();
@@ -78,6 +77,17 @@ public class GoogleSearchService implements SearchService {
             System.out.println(e.getMessage());
         }
         return resultUrls;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.sk.wca.search.SearchService#getHtmlDocumentFromUrl(java.lang.String)
+     */
+    @Override
+    public final Document getHtmlDocumentFromUrl(final String url) throws IOException {
+        return Jsoup.connect(url).userAgent(AppUtils.USER_AGENT).get();
     }
 
     /**
