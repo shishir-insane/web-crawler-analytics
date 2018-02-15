@@ -24,7 +24,7 @@ import com.sk.wca.util.Progress;
 
 public class WebCrawlerAnalytics {
     private static final int TOP_X_NUMBER = 5;
-    private static final int TOP_SEARCH_RESULTS = 100;
+    private static final int TOP_SEARCH_RESULTS = 30;
 
     /**
      * The main method.
